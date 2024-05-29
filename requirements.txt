@@ -2,3 +2,4 @@ requests
 trimesh
 numpy
 PyGithub
+python-dotenv
