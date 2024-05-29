@@ -109,6 +109,15 @@ def create_3d_calendar(contributions):
     colors = np.array(colors)
 
     mesh = trimesh.Trimesh(vertices=vertices, faces=faces, vertex_colors=colors)
+
+    # Apply rotation to align columns pointing upwards
+    rotation_matrix = trimesh.transformations.rotation_matrix(
+        angle= - np.pi / 2,  # minus 90 degrees
+        direction=[1, 0, 0],  # Rotate around the x-axis
+        point=mesh.centroid  # Rotate around the centroid
+    )
+    mesh.apply_transform(rotation_matrix)
+
     mesh.export('commit_calendar.glb')
 
 
