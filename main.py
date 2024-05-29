@@ -118,15 +118,14 @@ contributions = fetch_contributions(username)
 create_3d_calendar(contributions)
 
 # Upload to GitHub Gist
-gist_url = "https://api.github.com/gists"
-headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+gist_url = f"https://api.github.com/gists/{GIST_ID}"
+print(gist_url)
+headers = {'Authorization': f'Bearer {GITHUB_TOKEN}'}
 
 with open('commit_calendar.glb', 'rb') as f:
     content = f.read()
 
 data = {
-    "description": "GitHub Commit Calendar",
-    "public": True,
     "files": {
         "commit_calendar.glb": {
             "content": content.decode('latin1')
@@ -134,9 +133,9 @@ data = {
     }
 }
 
-response = requests.post(gist_url, headers=headers, json=data)
+response = requests.patch(gist_url, headers=headers, json=data)
 
-if response.status_code == 201:
-    print(f"Gist created: {response.json()['html_url']}")
+if response.status_code == 200:
+    print(f"Gist updated: {response.json()['html_url']}")
 else:
-    print(f"Error creating gist: {response.status_code}")
+    print(f"Error updating gist: {response.status_code}")
