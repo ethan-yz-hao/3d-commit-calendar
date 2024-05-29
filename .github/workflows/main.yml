@@ -3,6 +3,8 @@ name: Update Commit History
 on:
   schedule:
     - cron: '0 */8 * * *'
+  workflow_dispatch:
+    push: { branches: [ "master", "main" ] }
 
 jobs:
   update-history:
