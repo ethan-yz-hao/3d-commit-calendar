@@ -69,7 +69,7 @@ def create_3d_calendar(contributions):
             count = day['contributionCount']
             height = count / 10.0
             x = i * size
-            y = j * size
+            y = j * size * -1
             base_index = len(vertices)
             vertices.extend([
                 [x, y, 0],
