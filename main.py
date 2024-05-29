@@ -62,7 +62,7 @@ def get_color(count):
 def create_3d_calendar(contributions):
     vertices = []
     faces = []
-    colors = []
+    face_colors = []
 
     size = 1.0
     for i, week in enumerate(contributions):
@@ -103,13 +103,13 @@ def create_3d_calendar(contributions):
                 [base_index + 3, base_index + 1, base_index],
             ])
             color = get_color(count)
-            colors.extend([color] * 8)
+            face_colors.extend([color] * 12)
 
     vertices = np.array(vertices)
     faces = np.array(faces)
-    colors = np.array(colors)
+    face_colors = np.array(face_colors)
 
-    mesh = trimesh.Trimesh(vertices=vertices, faces=faces, vertex_colors=colors)
+    mesh = trimesh.Trimesh(vertices=vertices, faces=faces, face_colors=face_colors)
 
     # Apply rotation to align columns pointing upwards
     rotation_matrix = trimesh.transformations.rotation_matrix(
