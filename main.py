@@ -117,6 +117,8 @@ def create_3d_calendar(contributions):
         point=mesh.centroid  # Rotate around the centroid
     )
     mesh.apply_transform(rotation_matrix)
+    # Apply translation to center the calendar
+    mesh.apply_translation([-size * 53 / 2, size * 7 / 2, 0])
 
     mesh.export('commit_calendar.glb')
 
