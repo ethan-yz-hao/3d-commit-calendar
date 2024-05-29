@@ -9,6 +9,9 @@ jobs:
   update-history:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -26,5 +29,5 @@ jobs:
     - name: Run commit history script
       run: python main.py
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         GIST_ID: ${{ secrets.GIST_ID }}
