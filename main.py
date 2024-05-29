@@ -131,7 +131,6 @@ create_3d_calendar(contributions)
 
 # Upload to GitHub Gist
 gist_url = f"https://api.github.com/gists/{GIST_ID}"
-print(gist_url)
 headers = {'Authorization': f'Bearer {GITHUB_TOKEN}'}
 
 with open('commit_calendar.glb', 'rb') as f:

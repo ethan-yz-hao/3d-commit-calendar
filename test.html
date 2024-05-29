@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Commit Calendar</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        const gistUrl = 'https://gist.githubusercontent.com/ethan-yz-hao/bd550d4507cf0671dd5beca92d3bc6ca/raw/commit_calendar.glb';
+
+        async function fetchAndDecodeBase64(url) {
+            const response = await fetch(url);
+            const text = await response.text();
+            const byteCharacters = atob(text);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type: 'model/gltf-binary' });
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0x606060, 2);
+        scene.add(ambientLight);
+
+        // Add directional light
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(5, 5, 5).normalize();
+        scene.add(directionalLight);
+
+        // Add spotlight for additional illumination
+        const spotLight = new THREE.SpotLight(0xffffff, 1.5);
+        spotLight.position.set(15, 40, 35);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.1;
+        spotLight.decay = 2;
+        spotLight.distance = 200;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        async function loadModel() {
+            const blob = await fetchAndDecodeBase64(gistUrl);
+            const url = URL.createObjectURL(blob);
+
+            const loader = new THREE.GLTFLoader();
+            loader.load(url, function(gltf) {
+                scene.add(gltf.scene);
+                URL.revokeObjectURL(url); // Clean up the object URL
+            }, undefined, function(error) {
+                console.error(error);
+            });
+        }
+
+        loadModel();
+
+        camera.position.z = 20;
+        camera.position.y = 20;
+
+        // Add orbit controls for interactive viewing
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+        controls.dampingFactor = 0.25;
+        controls.screenSpacePanning = false;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        const animate = function() {
+            requestAnimationFrame(animate);
+
+            controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+</html>
