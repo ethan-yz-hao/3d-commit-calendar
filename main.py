@@ -34,7 +34,7 @@ def fetch_contributions(username):
     """
     variables = {
         "login": username,
-        "from": datetime.datetime.now().replace(year=datetime.datetime.now().year - 1).isoformat() + "Z",
+        "from": (datetime.datetime.now() - datetime.timedelta(weeks=53)).isoformat() + "Z",
         "to": datetime.datetime.now().isoformat() + "Z"
     }
     headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
