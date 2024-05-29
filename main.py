@@ -5,6 +5,7 @@ import numpy as np
 import os
 import datetime
 from dotenv import load_dotenv
+import base64
 
 # Get the environment variables
 load_dotenv()
@@ -136,10 +137,15 @@ headers = {'Authorization': f'Bearer {GITHUB_TOKEN}'}
 with open('commit_calendar.glb', 'rb') as f:
     content = f.read()
 
+# Encode the binary content to base64
+encoded_content = base64.b64encode(content).decode('utf-8')
+
 data = {
+    "description": "GitHub Commit Calendar",
+    "public": True,
     "files": {
         "commit_calendar.glb": {
-            "content": content.decode('latin1')
+            "content": encoded_content
         }
     }
 }
