@@ -121,7 +121,7 @@ def create_3d_calendar(contributions):
     # Apply translation to center the calendar
     mesh.apply_translation([-size * 53 / 2, size * 7 / 2, 0])
 
-    mesh.export('commit_calendar.glb', include_normals=True, include_color=True)
+    mesh.export('commit_calendar.glb')
 
 
 # Fetch contributions and generate the calendar
