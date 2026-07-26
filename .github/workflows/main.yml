@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         # numpy 1.26.4 has no wheels for 3.13+ and fails on import there.
         python-version: '3.12'
