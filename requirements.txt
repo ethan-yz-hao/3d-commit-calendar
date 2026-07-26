@@ -1,5 +1,5 @@
 requests==2.32.3
-trimesh==4.4.0
+trimesh==4.12.2
 numpy==1.26.4
 python-dotenv==1.0.1
 # Required by trimesh's GLB export path (face->vertex colour conversion uses
