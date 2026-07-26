@@ -32,15 +32,20 @@ This project creates a 3D model (GLB format) of your GitHub contribution calenda
 3. Set up the following repository secrets:
    - `ACCESS_TOKEN`: Your GitHub personal access token
    - `GIST_ID`: The ID of your created Gist
+4. Optionally set the `GH_USERNAME` environment variable to the account whose
+   contributions should be rendered (defaults to `ethan-yz-hao`)
+
+`index.html` is a standalone three.js viewer for the generated model, useful for
+checking the output locally before it goes live.
 
 ## Dependencies
 
-- Python 3.9+
+- Python 3.9-3.12 (the pinned numpy 1.26.4 has no support for 3.13+)
 - Required packages (install via `pip install -r requirements.txt`):
   - requests
-  - PyGithub
   - trimesh
   - numpy
+  - scipy (required by trimesh's GLB export path)
   - python-dotenv
 
 ## Usage

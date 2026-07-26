@@ -1,5 +1,4 @@
 import requests
-from github import Github
 import trimesh
 import numpy as np
 import os
@@ -11,9 +10,7 @@ import base64
 load_dotenv()
 GITHUB_TOKEN = os.getenv('ACCESS_TOKEN')
 GIST_ID = os.getenv('GIST_ID')
-
-# Initialize GitHub object
-g = Github(GITHUB_TOKEN)
+USERNAME = os.getenv('GH_USERNAME', 'ethan-yz-hao')
 
 
 def fetch_contributions(username):
@@ -33,16 +30,29 @@ def fetch_contributions(username):
       }
     }
     """
+    now = datetime.datetime.now(datetime.timezone.utc)
     variables = {
         "login": username,
-        "from": (datetime.datetime.now() - datetime.timedelta(weeks=53)).isoformat() + "Z",
-        "to": datetime.datetime.now().isoformat() + "Z"
+        "from": (now - datetime.timedelta(weeks=53)).isoformat(),
+        "to": now.isoformat()
     }
     headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
     response = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables},
-                             headers=headers)
+                             headers=headers, timeout=30)
+    response.raise_for_status()
     data = response.json()
-    return data['data']['user']['contributionsCollection']['contributionCalendar']['weeks']
+
+    # GraphQL answers with HTTP 200 even when the query fails - an expired token or an
+    # unknown login shows up as an "errors" key, not a status code. Without this check
+    # the failure surfaces as an opaque KeyError several lines later.
+    if 'errors' in data:
+        raise RuntimeError(f"GitHub GraphQL API returned errors: {data['errors']}")
+
+    user = (data.get('data') or {}).get('user')
+    if user is None:
+        raise RuntimeError(f"No contribution data returned for user {username!r}")
+
+    return user['contributionsCollection']['contributionCalendar']['weeks']
 
 
 PALETTE = [
@@ -144,8 +154,10 @@ def create_3d_calendar(contributions):
         point=mesh.centroid  # Rotate around the centroid
     )
     mesh.apply_transform(rotation_matrix)
-    # Apply translation to center the calendar
-    mesh.apply_translation([-size * 53 / 2, size * 7 / 2, 0])
+    # Apply translation to center the calendar. Centre on the number of week buckets
+    # actually returned - the API hands back 53 or 54 depending on where the range
+    # falls within the week, so a hardcoded 53 leaves the model slightly off-centre.
+    mesh.apply_translation([-size * len(contributions) / 2, size * 7 / 2, 0])
 
     mesh.export('commit_calendar.glb')
 
@@ -171,17 +183,25 @@ def upload_to_gist(path='commit_calendar.glb'):
         }
     }
 
-    response = requests.patch(gist_url, headers=headers, json=data)
+    response = requests.patch(gist_url, headers=headers, json=data, timeout=30)
 
-    if response.status_code == 200:
-        print(f"Gist updated: {response.json()['html_url']}")
-    else:
-        print(f"Error updating gist: {response.status_code}")
+    # Raise rather than print: a printed error still exits 0, which is how a broken
+    # upload can leave the gist stale behind a green workflow run.
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Error updating gist {GIST_ID}: {response.status_code} {response.text}"
+        )
+
+    print(f"Gist updated: {response.json()['html_url']}")
 
 
 if __name__ == '__main__':
+    if not GITHUB_TOKEN:
+        raise SystemExit("ACCESS_TOKEN is not set")
+    if not GIST_ID:
+        raise SystemExit("GIST_ID is not set")
+
     # Fetch contributions and generate the calendar
-    username = 'ethan-yz-hao'
-    contributions = fetch_contributions(username)
+    contributions = fetch_contributions(USERNAME)
     create_3d_calendar(contributions)
     upload_to_gist()
