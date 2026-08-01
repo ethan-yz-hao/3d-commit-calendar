@@ -1,6 +1,6 @@
 requests==2.32.3
 trimesh==4.4.0
-numpy==1.26.4
+numpy==2.5.1
 python-dotenv==1.0.1
 # Required by trimesh's GLB export path (face->vertex colour conversion uses
 # scipy.sparse). trimesh declares it as an optional extra, so it must be pinned here.
